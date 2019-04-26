@@ -1,0 +1,82 @@
+---
+title: "Introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{aa-introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "90%"
+)
+```
+
+```{r setup, message=FALSE}
+library(dplyr)
+library(raster)
+library(cartomisc)
+library(ggplot2)
+```
+
+## Extract part of the data with `gplot_data`
+
+To draw multiple raster on the same ggplot2, or to draw raster after other objects (points, polygons, lines)
+
+- data are extracted as a tibble
+- data can then be added to a ggplot2 with `geom_tile`
+
+```{r}
+# Read some data
+slogo <- stack(system.file("external/rlogo.grd", package = "raster")) 
+slogo
+
+# Get partial raster data to plot in ggplot
+r.gg <- gplot_data(slogo)
+
+# Remove NA to reduce size of table
+r.gg.nona <- r.gg %>% 
+  filter(!is.na(value))
+
+r.gg.nona
+```
+
+### Plot with ggplot2
+
+```{r, fig.width=12, fig.height=4}
+# Plot
+ggplot(r.gg.nona) +
+  geom_tile(aes(x = x, y = y, fill = value)) +
+  scale_fill_gradient("Probability", low = 'yellow', high = 'blue') +
+  facet_wrap(vars(variable)) +
+  coord_equal()
+```
+
+# Sun position
+
+Calculate sun position for hillShade
+
+```{r}
+sun_position <- sun_position(2019, 04, 26,
+  hour = 12, min = 0, sec = 0,
+  lat = 46.5, long = 6.5
+)
+sun_position
+```
+
+Use with hillShade
+```{r}
+r <- raster(system.file("external/rlogo.grd", package = "raster"))
+# slope and aspect
+r_slope <- terrain(r, opt = "slope")
+r_aspect <- terrain(r, opt = "aspect")
+# hillshade
+r_hillshade <- hillShade(r_slope, r_aspect, angle = sun_position$elevation, direction = sun_position$azimuth)
+# plot
+image(r)
+image(r_hillshade, col = grey(seq(0, 1, 0.1), alpha = 0.5), add = TRUE)
+```
+

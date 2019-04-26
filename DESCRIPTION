@@ -1,0 +1,24 @@
+Package: cartomisc
+Title: Miscellaneous tools for spatial data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Sebastien",
+           family = "Rochette",
+           role = c("aut", "cre"),
+           email = "sebastien@thinkr.fr",
+           comment = c(ORCID = "0000-0002-1565-9313"))
+Description: Some useful tools for use with spatial data.
+License: MIT + file LICENSE
+Imports: 
+    dplyr,
+    raster,
+    utils
+Suggests: 
+    ggplot2,
+    knitr,
+    rmarkdown
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
