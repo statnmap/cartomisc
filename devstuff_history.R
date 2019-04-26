@@ -6,6 +6,10 @@ usethis::use_git_ignore("docs/")
 usethis::use_git_ignore("rsconnect/")
 # usethis::create_package(".")
 
+# git
+usethis::use_git()
+usethis::use_github()
+
 # description ----
 library(desc)
 unlink("DESCRIPTION")
