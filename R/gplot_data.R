@@ -25,7 +25,7 @@ gplot_data <- function(x, maxpixels = 50000)  {
     dat$variable <- names(x)
   }
 
-  dat <- dplyr::as.tbl(data.frame(coords, dat))
+  dat <- dplyr::as_tibble(data.frame(coords, dat))
 
   if (!is.null(levels(x))) {
     dat <- dplyr::left_join(dat, levels(x)[[1]],

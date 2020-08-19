@@ -7,8 +7,16 @@ date and geographical position in wgs84
 Found here:
 http://stackoverflow.com/questions/8708048/position-of-the-sun-given-time-of-day-latitude-and-longitude}
 \usage{
-sun_position(year, month, day, hour = 12, min = 0, sec = 0,
-  lat = 46.5, long = 6.5)
+sun_position(
+  year,
+  month,
+  day,
+  hour = 12,
+  min = 0,
+  sec = 0,
+  lat = 46.5,
+  long = 6.5
+)
 }
 \arguments{
 \item{year}{year}

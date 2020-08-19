@@ -5,9 +5,12 @@
 
 <!-- badges: start -->
 
+[![R build
+status](https://github.com/statnmap/cartomisc/workflows/R-CMD-check/badge.svg)](https://github.com/statnmap/cartomisc/actions)
 <!-- badges: end -->
 
-The goal of cartomisc is to …
+The goal of {cartomisc} is to store a few useful functions for spatial
+data manipulation and analysis.
 
 ## Installation
 
@@ -25,6 +28,7 @@ library(dplyr)
 library(raster)
 library(cartomisc)
 library(ggplot2)
+library(sf)
 ```
 
 ## Extract part of the data with `gplot_data`
@@ -41,14 +45,14 @@ other objects (points, polygons, lines)
 # Read some data
 slogo <- stack(system.file("external/rlogo.grd", package = "raster")) 
 slogo
-#> class       : RasterStack 
-#> dimensions  : 77, 101, 7777, 3  (nrow, ncol, ncell, nlayers)
-#> resolution  : 1, 1  (x, y)
-#> extent      : 0, 101, 0, 77  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=merc +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0 
-#> names       : red, green, blue 
-#> min values  :   0,     0,    0 
-#> max values  : 255,   255,  255
+#> class      : RasterStack 
+#> dimensions : 77, 101, 7777, 3  (nrow, ncol, ncell, nlayers)
+#> resolution : 1, 1  (x, y)
+#> extent     : 0, 101, 0, 77  (xmin, xmax, ymin, ymax)
+#> crs        : +proj=merc +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0 
+#> names      : red, green, blue 
+#> min values :   0,     0,    0 
+#> max values : 255,   255,  255
 
 # Get partial raster data to plot in ggplot
 r.gg <- gplot_data(slogo)
@@ -119,3 +123,65 @@ image(r_hillshade, col = grey(seq(0, 1, 0.1), alpha = 0.5), add = TRUE)
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+## Create buffer areas with attribute of the closest region
+
+  - Download some data
+
+<!-- end list -->
+
+``` r
+# Define where to save the dataset
+extraWD <- tempdir()
+# Get some data available to anyone
+if (!file.exists(file.path(extraWD, "departement.zip"))) {
+  githubURL <- "https://github.com/statnmap/blog_tips/raw/master/2018-07-14-introduction-to-mapping-with-sf-and-co/data/departement.zip"
+  download.file(githubURL, file.path(extraWD, "departement.zip"))
+  unzip(file.path(extraWD, "departement.zip"), exdir = extraWD)
+}
+```
+
+  - Reduce the dataset to a small region
+
+<!-- end list -->
+
+``` r
+departements_l93 <- read_sf(dsn = extraWD, layer = "DEPARTEMENT")
+
+# Reduce dataset
+bretagne_l93 <- departements_l93 %>%
+  filter(NOM_REG == "BRETAGNE")
+```
+
+  - Calculate the regional buffer area using `regional_seas()`
+
+<!-- end list -->
+
+``` r
+bretagne_regional_2km_l93 <- regional_seas(
+  x = bretagne_l93,
+  group = "NOM_DEPT",
+  dist = units::set_units(30, km), # buffer distance
+  density = units::set_units(0.5, 1/km) # density of points (the higher, the more precise the region attribution)
+)
+```
+
+  - Plot the data
+
+<!-- end list -->
+
+``` r
+ggplot() + 
+  geom_sf(data = bretagne_regional_2km_l93,
+          aes(colour = NOM_DEPT, fill = NOM_DEPT),
+          alpha = 0.25) +
+  geom_sf(data = bretagne_l93,
+          aes(fill = NOM_DEPT),
+          colour = "grey20",
+          alpha = 0.5) +
+  scale_fill_viridis_d() +
+  scale_color_viridis_d() +
+  theme_bw()
+```
+
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />

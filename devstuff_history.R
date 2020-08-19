@@ -42,10 +42,11 @@ usethis::use_testthat()
 usethis::use_test("app")
 
 # _CI
-thinkridentity::use_gitlab_ci(image = "thinkr/runnerci", upgrade = "never")
 # usethis::use_travis()
 # usethis::use_appveyor()
 # usethis::use_coverage()
+usethis::use_github_action_check_standard()
+usethis::use_github_action("pkgdown")
 
 # _rhub
 # rhub::check_for_cran()
@@ -59,27 +60,8 @@ usethis::use_news_md()
 # _Vignette
 thinkridentity::create_vignette_thinkr("aa-introduction")
 usethis::use_vignette("aa-introduction")
+usethis::use_vignette("regional-seas-buffer")
 devtools::build_vignettes()
-
-
-# _Book
-# thinkridentity::install_git_with_pwd(repo = "ThinkR/visualidentity", username, password, host = "git.thinkr.fr")
-visualidentity::create_book("inst/report", clean = TRUE)
-visualidentity::open_guide_function()
-devtools::document()
-visualidentity::build_book(clean_rmd = TRUE, clean = TRUE)
-# pkg::open_guide()
-
-# _Pkgdown
-visualidentity::build_pkgdown(
-  # lazy = TRUE,
-  yml = system.file("pkgdown/_pkgdown.yml", package = "thinkridentity"),
-  favicon = system.file("pkgdown/favicon.ico", package = "thinkridentity"),
-  move = TRUE, clean_before = TRUE, clean_after = FALSE
-)
-
-visualidentity::open_pkgdown_function(path = "docs")
-# pkg::open_pkgdown()
 
 # Dependencies ----
 # devtools::install_github("ThinkR-open/attachment")
