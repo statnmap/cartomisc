@@ -15,21 +15,36 @@
 #' @export
 
 gplot_data <- function(x, maxpixels = 50000)  {
-  x <- raster::sampleRegular(x, maxpixels, asRaster = TRUE)
-  coords <- raster::xyFromCell(x, seq_len(raster::ncell(x)))
-  ## Extract values
-  dat <- utils::stack(as.data.frame(raster::getValues(x)))
-  names(dat) <- c('value', 'variable')
-  # If only one variable
-  if (dat$variable[1] == "raster::getValues(x)") {
-    dat$variable <- names(x)
-  }
-
-  dat <- dplyr::as_tibble(data.frame(coords, dat))
-
-  if (!is.null(levels(x))) {
-    dat <- dplyr::left_join(dat, levels(x)[[1]],
-                            by = c("value" = "ID"))
+  if (class(x) == "SpatRaster"){ # work with terra package rasters
+    x <- terra::spatSample(x, maxpixels, as.raster = TRUE)
+    coords <- terra::xyFromCell(x, seq_len(terra::ncell(x)))
+    ## Extract values
+    dat <- utils::stack(as.data.frame(terra::values(x)))
+    names(dat) <- c('value', 'variable')
+    # If only one variable
+    if (dat$variable[1] == "terra::values(x)") {
+      dat$variable <- names(x)
+    }
+    
+    dat <- dplyr::as_tibble(data.frame(coords, dat))
+    ## OLD `gplot_data` FUNCTION
+  }else{ # work with raster package rasters
+    x <- raster::sampleRegular(x, maxpixels, asRaster = TRUE)
+    coords <- raster::xyFromCell(x, seq_len(raster::ncell(x)))
+    ## Extract values
+    dat <- utils::stack(as.data.frame(raster::getValues(x)))
+    names(dat) <- c('value', 'variable')
+    # If only one variable
+    if (dat$variable[1] == "raster::getValues(x)") {
+      dat$variable <- names(x)
+    }
+    
+    dat <- dplyr::as_tibble(data.frame(coords, dat))
+    
+    if (!is.null(levels(x))) {
+      dat <- dplyr::left_join(dat, levels(x)[[1]],
+                              by = c("value" = "ID"))
+    }
   }
   dat
 }
